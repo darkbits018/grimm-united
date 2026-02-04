@@ -25,7 +25,7 @@ export function DesignCard({ design }: Props) {
           className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
         />
       </div>
-      
+
       <div className="p-4">
         <div className="flex items-start justify-between mb-2">
           <h3 className="text-lg font-semibold text-[#2C2C2C] dark:text-white">
@@ -36,19 +36,17 @@ export function DesignCard({ design }: Props) {
             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <Heart
-              className={`w-5 h-5 transition-colors ${
-                isLiked ? 'fill-[#FF4B8C] text-[#FF4B8C]' : 'text-gray-400'
-              }`}
+              className={`w-5 h-5 transition-colors ${isLiked ? 'fill-[#FF4B8C] text-[#FF4B8C]' : 'text-gray-400'
+                }`}
             />
           </button>
         </div>
-        
+
         <p className="text-sm text-[#2C2C2C]/70 dark:text-white/70 mb-3">
           {design.description}
         </p>
-        
-        <div className="flex items-center justify-between">
-          <span className="text-[#FF4B8C] font-semibold">₹{design.price}</span>
+
+        <div className="flex items-center justify-end">
           <span className="text-xs text-[#2C2C2C]/60 dark:text-white/60">
             {design.category}
           </span>

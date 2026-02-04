@@ -3,7 +3,7 @@ import { Sword, Cherry } from 'lucide-react';
 import { useInView } from './hooks/useInView';
 import { useInterestCounter } from './hooks/useInterestCounter';
 import { BrandLogo } from './BrandLogo';
-import { Link } from 'react-router-dom';
+
 
 interface HeroProps {
   interestFormRef: RefObject<HTMLDivElement>;
@@ -11,7 +11,7 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ interestFormRef }) => {
   const [ref, isVisible] = useInView();
-  const interestCount = useInterestCounter(1234);
+  const interestCount = useInterestCounter();
 
   const handleScrollToForm = () => {
     if (interestFormRef.current) {
