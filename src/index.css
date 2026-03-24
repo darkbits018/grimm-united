@@ -6,10 +6,13 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+.home-scroll {
   scroll-snap-type: y mandatory;
 }
 
-section {
+.home-scroll section {
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
@@ -63,4 +66,13 @@ section {
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #ff4b8c;
   border-radius: 3px;
+}
+
+@layer components {
+  .input {
+    @apply w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#2C2C2C] dark:text-white text-sm outline-none focus:ring-2 focus:ring-[#FF4B8C] transition-all;
+  }
+  .label {
+    @apply block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1;
+  }
 }

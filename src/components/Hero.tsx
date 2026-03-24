@@ -1,8 +1,11 @@
 import React, { RefObject } from 'react';
-import { Sword, Cherry } from 'lucide-react';
+import { Sword, Cherry, ShoppingBag } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useInView } from './hooks/useInView';
 import { useInterestCounter } from './hooks/useInterestCounter';
 import { BrandLogo } from './BrandLogo';
+import { useCart } from '../contexts/CartContext';
+import { ThemeToggle } from './ThemeToggle';
 
 
 interface HeroProps {
@@ -12,6 +15,7 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ interestFormRef }) => {
   const [ref, isVisible] = useInView();
   const interestCount = useInterestCounter();
+  const { itemCount } = useCart();
 
   const handleScrollToForm = () => {
     if (interestFormRef.current) {
@@ -21,6 +25,25 @@ const Hero: React.FC<HeroProps> = ({ interestFormRef }) => {
 
   return (
     <div ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Top Nav */}
+      <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 py-4 bg-gradient-to-b from-black/40 to-transparent">
+        <span className="font-bold text-white text-lg tracking-wide drop-shadow-lg">Grimm United</span>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/shop"
+            className="flex items-center gap-2 bg-black/40 backdrop-blur-sm border border-white/30 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-black/60 transition-all drop-shadow-lg"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            Shop
+            {itemCount > 0 && (
+              <span className="bg-[#FF4B8C] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                {itemCount}
+              </span>
+            )}
+          </Link>
+          <ThemeToggle />
+        </div>
+      </nav>
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-b from-[#FFB7C5]/20 to-white/90 dark:from-[#FFB7C5]/10 dark:to-[#1a1a1a]/90" />
         <img
@@ -48,7 +71,7 @@ const Hero: React.FC<HeroProps> = ({ interestFormRef }) => {
 
           <div className="mt-8 flex items-center justify-center text-[#2C2C2C]/70 dark:text-white/70">
             <Cherry className="w-5 h-5 mr-2" />
-            <span>{interestCount.toLocaleString()} people interested</span>
+            <span>{interestCount != null ? `${interestCount.toLocaleString()} people interested` : 'Loading...'}</span>
           </div>
         </div>
       </div>

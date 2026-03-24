@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 export function useInterestCounter() {
-  const [count, setCount] = useState<number>(1250); // Fallback base
+  const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchCount = async () => {
@@ -18,13 +18,6 @@ export function useInterestCounter() {
     };
 
     fetchCount();
-
-    // Make it tick occasionally to feel alive
-    const interval = setInterval(() => {
-      setCount(prev => prev + (Math.random() > 0.8 ? 1 : 0));
-    }, 8000);
-
-    return () => clearInterval(interval);
   }, []);
 
   return count;
