@@ -12,7 +12,7 @@ export function ConsentSection({ data, onChange, errors }: Props) {
   return (
     <div className="space-y-4">
       <Checkbox
-        label="I understand the cashback terms (5-10% cashback applicable on purchases within 30 days of the store launch)."
+        label="I want flat ₹100 off on launch — apply it to my first order."
         checked={data.cashbackConsent}
         onChange={(checked) => onChange('cashbackConsent', checked)}
       />

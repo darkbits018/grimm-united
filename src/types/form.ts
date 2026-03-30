@@ -28,6 +28,8 @@ export interface Consent {
   subscribeUpdates: boolean;
 }
 
+export type BuyingIntent = 'definitely' | 'might' | 'exploring' | '';
+
 export interface FormData {
   basicInfo: BasicInfo;
   stylePreferences: StylePreferences;
@@ -35,4 +37,5 @@ export interface FormData {
   pricingPreferences: PricingPreferences;
   feedback: Feedback;
   consent: Consent;
+  buyingIntent: BuyingIntent;
 }

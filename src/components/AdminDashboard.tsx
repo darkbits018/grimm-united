@@ -402,7 +402,7 @@ export default function AdminDashboard() {
                             </Field>
 
                             <div className="flex gap-6 pt-2 border-t border-gray-100 dark:border-gray-800">
-                                <span className="text-xs text-gray-500">Cashback consent: <span className={selectedSubmission.cashback_consent ? 'text-green-500' : 'text-red-400'}>{selectedSubmission.cashback_consent ? 'Yes' : 'No'}</span></span>
+                                <span className="text-xs text-gray-500">Discount consent: <span className={selectedSubmission.cashback_consent ? 'text-green-500' : 'text-red-400'}>{selectedSubmission.cashback_consent ? 'Yes' : 'No'}</span></span>
                                 <span className="text-xs text-gray-500">Subscribed: <span className={selectedSubmission.subscribe_updates ? 'text-green-500' : 'text-red-400'}>{selectedSubmission.subscribe_updates ? 'Yes' : 'No'}</span></span>
                             </div>
                         </div>

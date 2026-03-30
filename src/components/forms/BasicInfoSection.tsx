@@ -33,14 +33,14 @@ export function BasicInfoSection({ data, onChange, errors }: Props) {
         type="text"
         value={data.instagramHandle || ''}
         onChange={(value) => onChange('instagramHandle', value)}
-        placeholder="@instagram (recommended)"
+        placeholder="@instagram (optional)"
       />
       <FormField
         label="X Handle"
         type="text"
         value={data.twitterHandle || ''}
         onChange={(value) => onChange('twitterHandle', value)}
-        placeholder="@x (recommended)"
+        placeholder="@x (optional)"
       />
     </div>
   );

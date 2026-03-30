@@ -7,6 +7,7 @@ import { ClothingTypesSection } from './forms/ClothingTypesSection';
 import { PricingSection } from './forms/PricingSection';
 import { FeedbackSection } from './forms/FeedbackSection';
 import { ConsentSection } from './forms/ConsentSection';
+import { BuyingIntentSection } from './forms/BuyingIntentSection';
 import { FormProgress } from './forms/FormProgress';
 import type { FormData } from '../types/form';
 import { useFormProgress } from './hooks/useFormProgress';
@@ -37,7 +38,8 @@ const initialFormData: FormData = {
   consent: {
     cashbackConsent: false,
     subscribeUpdates: false
-  }
+  },
+  buyingIntent: '',
 };
 
 const InterestForm = () => {
@@ -115,14 +117,14 @@ const InterestForm = () => {
     }
 
     if (!formData.consent.cashbackConsent) {
-      newErrors.consent = 'Please accept the cashback terms';
+      newErrors.consent = 'Please accept the early access terms';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = <T extends keyof FormData>(
+  const handleChange = <T extends keyof Omit<FormData, 'buyingIntent'>>(
     section: T,
     field: keyof FormData[T],
     value: string | number | string[] | boolean
@@ -166,7 +168,8 @@ const InterestForm = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h2 className="text-3xl md:text-4xl font-noto text-[#2C2C2C] dark:text-white mb-6 text-center" >Tell Us What You Think!</h2>
+      <h2 className="text-3xl md:text-4xl font-noto text-[#2C2C2C] dark:text-white mb-3 text-center">Get Early Access + 10% Off</h2>
+      <p className="text-center text-[#2C2C2C]/60 dark:text-white/60 text-sm mb-6">Be among the first to access Grimm United's first drop.</p>
 
       <div className="sticky top-0 bg-white dark:bg-[#1a1a1a] z-10">
         <FormProgress progress={progress} />
@@ -203,6 +206,12 @@ const InterestForm = () => {
             errors={errors}
           />
 
+          <BuyingIntentSection
+            value={formData.buyingIntent}
+            onChange={value => setFormData(prev => ({ ...prev, buyingIntent: value }))}
+            error={errors.buyingIntent}
+          />
+
           <ConsentSection
             data={formData.consent}
             onChange={(field, value) => handleChange('consent', field, value)}
@@ -215,9 +224,10 @@ const InterestForm = () => {
           disabled={isSubmitting}
           className="w-full bg-[#FF4B8C] text-white px-6 py-4 rounded-xl font-semibold hover:bg-[#FF4B8C]/90 transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
         >
-          <span>{isSubmitting ? 'Submitting...' : 'Submit Interest'}</span>
+          <span>{isSubmitting ? 'Submitting...' : 'Claim ₹100 Off / Unlock Early Access'}</span>
           <Send className={`w-4 h-4 ${isSubmitting ? 'animate-pulse' : ''}`} />
         </button>
+        <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-2">🔒 No spam. Only launch updates.</p>
       </form>
     </div>
   );

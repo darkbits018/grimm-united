@@ -66,7 +66,7 @@ const Hero: React.FC<HeroProps> = ({ interestFormRef }) => {
                      flex items-center justify-center space-x-2 mx-auto"
           >
             <Sword className="w-5 h-5" />
-            <span>Show Interest & Get 10% Cashback</span>
+            <span>Show Interest & Get Early Access</span>
           </button>
 
           <div className="mt-8 flex items-center justify-center text-[#2C2C2C]/70 dark:text-white/70">

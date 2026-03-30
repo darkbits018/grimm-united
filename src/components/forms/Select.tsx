@@ -34,7 +34,7 @@ export function Select({ label, value, options, onChange, error, required, multi
                  focus:border-transparent"
         required={required}
       >
-        {!multiple && <option value="">Select an option</option>}
+        {!multiple && value === '' && <option value="" disabled>Select an option</option>}
         {options.map(option => (
           <option key={option} value={option}>
             {option}
