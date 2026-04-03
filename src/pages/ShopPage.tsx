@@ -5,11 +5,16 @@ import { ShopNav } from '../components/shop/ShopNav';
 import { categories } from '../data/products';
 import Footer from '../components/Footer';
 import type { Product } from '../types/shop';
+import { usePageMeta } from '../components/hooks/usePageMeta';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const SHOP_LIVE = false; // flip to true when ready to launch
+const SHOP_LIVE = true;
 
 export default function ShopPage() {
+  usePageMeta(
+    'Shop — Grimm United',
+    'Shop anime-inspired streetwear from Grimm United. Premium print-on-demand T-shirts and hoodies. Free shipping across India.'
+  );
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { X, Package, MapPin, User, ChevronDown, RefreshCw } from 'lucide-react';
+import { X, Package, MapPin, User, ChevronDown, RefreshCw, Download } from 'lucide-react';
 import { OrderStatusBadge } from '../shop/OrderStatusBadge';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -78,6 +78,15 @@ export default function OrdersTab() {
           <button onClick={fetchOrders} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors" title="Refresh">
             <RefreshCw className="w-4 h-4 text-gray-500" />
           </button>
+          <a
+            href={`${API}/api/admin/orders/qikink-failed-csv`}
+            download="qikink_bulk_upload.csv"
+            onClick={e => { const url = new URL(`${API}/api/admin/orders/qikink-failed-csv`); url.searchParams.set('x_admin_token', TOKEN); (e.currentTarget as HTMLAnchorElement).href = url.toString(); }}
+            className="flex items-center gap-2 border border-orange-400 text-orange-400 px-3 py-2 rounded-xl text-xs font-semibold hover:bg-orange-400/5 transition-colors"
+            title="Download CSV for failed Qikink pushes"
+          >
+            <Download className="w-4 h-4" /> Failed Orders CSV
+          </a>
         </div>
       </div>
 

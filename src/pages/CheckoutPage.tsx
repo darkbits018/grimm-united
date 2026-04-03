@@ -7,8 +7,8 @@ import { PriceDisplay } from '../components/shop/PriceDisplay';
 import type { ShippingAddress } from '../types/shop';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const SHIPPING_THRESHOLD = 999;
-const SHIPPING_COST = 99;
+const SHIPPING_THRESHOLD = 0; // free shipping always
+const SHIPPING_COST = 0;
 
 const emptyAddress: ShippingAddress = {
   name: '', email: '', phone: '',
@@ -285,9 +285,8 @@ export default function CheckoutPage() {
                 {discount > 0 && <div className="flex justify-between text-green-500"><span>Discount</span><span>-₹{discount.toLocaleString('en-IN')}</span></div>}
                 <div className="flex justify-between dark:text-gray-300">
                   <span>Shipping</span>
-                  <span>{shipping === 0 ? <span className="text-green-500">Free</span> : `₹${shipping}`}</span>
+                  <span className="text-green-500">Free</span>
                 </div>
-                {shipping > 0 && <p className="text-xs text-gray-400">Add ₹{(SHIPPING_THRESHOLD - subtotal).toLocaleString('en-IN')} more for free shipping</p>}
                 <div className="flex justify-between font-bold text-base dark:text-white border-t border-gray-100 dark:border-gray-800 pt-2 mt-2">
                   <span>Total</span><span>₹{total.toLocaleString('en-IN')}</span>
                 </div>

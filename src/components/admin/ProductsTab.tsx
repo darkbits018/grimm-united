@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, ImagePlus, RefreshCw, FileJson } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, ImagePlus, RefreshCw, FileJson, ChevronDown, ChevronRight } from 'lucide-react';
 import { categories } from '../../data/products';
 import type { Product } from '../../types/shop';
 
@@ -33,6 +33,9 @@ export default function ProductsTab() {
   const [importing, setImporting] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkWorking, setBulkWorking] = useState(false);
+  const [bulkPriceOpen, setBulkPriceOpen] = useState(false);
+  const [bulkPrice, setBulkPrice] = useState('');
+  const [bulkComparePrice, setBulkComparePrice] = useState('');
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -96,7 +99,6 @@ export default function ProductsTab() {
   };
 
   const toggleSelect = (id: string) => setSelected(s => { const n = new Set(s); if (n.has(id)) { n.delete(id); } else { n.add(id); } return n; });
-  const toggleSelectAll = () => setSelected(s => s.size === products.length ? new Set() : new Set(products.map(p => p.id)));
 
   const bulkDelete = async () => {
     if (!confirm(`Delete ${selected.size} products permanently?`)) return;
@@ -114,8 +116,52 @@ export default function ProductsTab() {
     await fetchProducts(); setSelected(new Set()); setBulkWorking(false);
   };
 
-  const openCreate = () => { setEditing(null); setForm(emptyForm); setImageInput(''); setTagInput(''); setModalOpen(true); };
-  const openEdit = (p: Product) => { setEditing(p); setForm({ ...p }); setImageInput(''); setTagInput(''); setModalOpen(true); };
+  const bulkUpdatePrice = async () => {
+    const price = bulkPrice ? Number(bulkPrice) : null;
+    const compareAt = bulkComparePrice ? Number(bulkComparePrice) : undefined;
+    if (!price && compareAt === undefined) return;
+    setBulkWorking(true);
+    const toUpdate = products.filter(p => selected.has(p.id));
+    await Promise.all(toUpdate.map(p => {
+      const updated = { ...p };
+      if (price && price > 0) updated.price = price;
+      if (compareAt !== undefined) updated.compare_at_price = compareAt || undefined;
+      return fetch(`${API}/api/admin/products/${p.id}`, { method: 'PUT', headers: HEADERS, body: JSON.stringify(updated) });
+    }));
+    await fetchProducts(); setSelected(new Set()); setBulkPriceOpen(false); setBulkPrice(''); setBulkComparePrice(''); setBulkWorking(false);
+  };
+
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const toggleExpand = (key: string) => setExpanded(s => { const n = new Set(s); if (n.has(key)) { n.delete(key); } else { n.add(key); } return n; });
+
+  const COLOR_HEX: Record<string, string> = {
+    '2': '#1a1a1a', '3': '#1a2a4a', '9': '#2a4aaa', '25': '#6b1a1a',
+    '26': '#4a1a6b', '1': '#ffffff', '4': '#c0392b', '5': '#27ae60',
+    '6': '#e67e22', '7': '#f1c40f', '8': '#95a5a6',
+  };
+
+  // Group products by qikink_client_product_id; ungrouped shown as-is
+  const grouped = useMemo(() => {
+    const map = new Map<string, Product[]>();
+    const ungrouped: Product[] = [];
+    for (const p of products) {
+      const key = p.qikink_client_product_id;
+      if (key) {
+        if (!map.has(key)) map.set(key, []);
+        map.get(key)!.push(p);
+      } else {
+        ungrouped.push(p);
+      }
+    }
+    const rows: Array<{ key: string; primary: Product; variants: Product[] }> = [];
+    map.forEach((variants, key) => rows.push({ key, primary: variants[0], variants }));
+    ungrouped.forEach(p => rows.push({ key: p.id, primary: p, variants: [p] }));
+    return rows;
+  }, [products]);
+
+  const allGroupIds = useMemo(() => grouped.flatMap(g => g.variants.map(v => v.id)), [grouped]);
+
+  const openCreate = () => { setEditing(null); setForm(emptyForm); setImageInput(''); setTagInput(''); setModalOpen(true); };  const openEdit = (p: Product) => { setEditing(p); setForm({ ...p }); setImageInput(''); setTagInput(''); setModalOpen(true); };
 
   const save = async () => {
     if (!form.name || !form.price) return;
@@ -157,7 +203,7 @@ export default function ProductsTab() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-bold dark:text-white">Products</h2>
-          <p className="text-sm text-gray-400">{products.length} total</p>
+          <p className="text-sm text-gray-400">{grouped.length} product{grouped.length !== 1 ? 's' : ''} ({products.length} variants)</p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={fetchProducts} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors" title="Refresh">
@@ -194,14 +240,42 @@ export default function ProductsTab() {
 
       {selected.size > 0 && (
         <div className="mb-4 flex items-center gap-3 px-4 py-3 bg-[#FF4B8C]/10 border border-[#FF4B8C]/30 rounded-xl">
-          <span className="text-sm font-medium text-[#FF4B8C]">{selected.size} selected</span>
-          <div className="flex gap-2 ml-auto">
+          <span className="text-sm font-medium text-[#FF4B8C]">{selected.size} variant{selected.size !== 1 ? 's' : ''} selected</span>
+          <div className="flex gap-2 ml-auto flex-wrap">
             <button onClick={() => bulkSetActive(true)} disabled={bulkWorking} className="px-3 py-1.5 text-xs font-semibold bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors">Activate</button>
             <button onClick={() => bulkSetActive(false)} disabled={bulkWorking} className="px-3 py-1.5 text-xs font-semibold bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 transition-colors">Deactivate</button>
+            <button onClick={() => { setBulkPriceOpen(true); setBulkPrice(''); setBulkComparePrice(''); }} disabled={bulkWorking} className="px-3 py-1.5 text-xs font-semibold bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors">Set Price</button>
             <button onClick={bulkDelete} disabled={bulkWorking} className="px-3 py-1.5 text-xs font-semibold bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors">
               {bulkWorking ? 'Working...' : 'Delete'}
             </button>
             <button onClick={() => setSelected(new Set())} className="px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Clear</button>
+          </div>
+        </div>
+      )}
+
+      {bulkPriceOpen && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setBulkPriceOpen(false)}>
+          <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl p-6 w-full max-w-sm space-y-4" onClick={e => e.stopPropagation()}>
+            <h3 className="font-bold text-lg dark:text-white">Set Price for {selected.size} variant{selected.size !== 1 ? 's' : ''}</h3>
+            <p className="text-xs text-gray-400">Leave a field blank to keep existing value.</p>
+            <div>
+              <label className="label">Price (₹)</label>
+              <input type="number" min={1} autoFocus value={bulkPrice}
+                onChange={e => setBulkPrice(e.target.value)}
+                className="input" placeholder="e.g. 499" />
+            </div>
+            <div>
+              <label className="label">Compare At Price (₹) <span className="text-gray-400 font-normal">— shows as strikethrough</span></label>
+              <input type="number" min={1} value={bulkComparePrice}
+                onChange={e => setBulkComparePrice(e.target.value)}
+                className="input" placeholder="e.g. 699 (optional)" />
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => { setBulkPriceOpen(false); setBulkPrice(''); setBulkComparePrice(''); }} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Cancel</button>
+              <button onClick={bulkUpdatePrice} disabled={bulkWorking || (!bulkPrice && !bulkComparePrice)} className="flex-1 py-2.5 rounded-xl bg-[#FF4B8C] text-white text-sm font-semibold hover:bg-[#FF4B8C]/90 disabled:opacity-50 transition-colors">
+                {bulkWorking ? 'Updating...' : 'Apply'}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -215,7 +289,7 @@ export default function ProductsTab() {
               <thead className="bg-gray-50 dark:bg-gray-800/50 text-gray-500 text-xs font-semibold uppercase tracking-wider">
                 <tr>
                   <th className="px-4 py-4">
-                    <input type="checkbox" checked={selected.size === products.length && products.length > 0} onChange={toggleSelectAll} className="w-4 h-4 rounded accent-[#FF4B8C] cursor-pointer" />
+                    <input type="checkbox" checked={selected.size === allGroupIds.length && allGroupIds.length > 0} onChange={() => setSelected(s => s.size === allGroupIds.length ? new Set() : new Set(allGroupIds))} className="w-4 h-4 rounded accent-[#FF4B8C] cursor-pointer" />
                   </th>
                   <th className="px-5 py-4">Product</th>
                   <th className="px-5 py-4">Category</th>
@@ -226,45 +300,104 @@ export default function ProductsTab() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                {products.map(p => (
-                  <tr key={p.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors ${selected.has(p.id) ? 'bg-[#FF4B8C]/5' : ''}`}>
-                    <td className="px-4 py-4">
-                      <input type="checkbox" checked={selected.has(p.id)} onChange={() => toggleSelect(p.id)} className="w-4 h-4 rounded accent-[#FF4B8C] cursor-pointer" />
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        {p.images[0] && <img src={p.images[0]} alt={p.name} className="w-10 h-10 rounded-lg object-cover" />}
-                        <span className="text-sm font-medium dark:text-gray-200 line-clamp-1 max-w-[180px]">{p.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{p.category}</td>
-                    <td className="px-5 py-4">
-                      <span className="text-sm font-semibold text-[#FF4B8C]">₹{p.price}</span>
-                      {p.compare_at_price && <span className="text-xs text-gray-400 line-through ml-1">₹{p.compare_at_price}</span>}
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="flex flex-wrap gap-1">
-                        {p.sizes.map(s => <span key={s} className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-gray-600 dark:text-gray-400">{s}</span>)}
-                      </div>
-                    </td>
-                    <td className="px-5 py-4">
-                      <button onClick={() => toggleActive(p)} className="flex items-center gap-1 text-xs font-medium">
-                        {p.is_active ? <><ToggleRight className="w-5 h-5 text-green-500" /><span className="text-green-500">Active</span></> : <><ToggleLeft className="w-5 h-5 text-gray-400" /><span className="text-gray-400">Inactive</span></>}
-                      </button>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-2">
-                        <button onClick={() => openEdit(p)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-                          <Pencil className="w-4 h-4 text-gray-500" />
+                {grouped.map(({ key, primary, variants }) => {
+                  const isGroup = variants.length > 1;
+                  const isOpen = expanded.has(key);
+                  const allSelected = variants.every(v => selected.has(v.id));
+                  const someSelected = variants.some(v => selected.has(v.id));
+                  const toggleGroup = () => setSelected(s => {
+                    const n = new Set(s);
+                    if (allSelected) { variants.forEach(v => n.delete(v.id)); }
+                    else { variants.forEach(v => n.add(v.id)); }
+                    return n;
+                  });                  // strip color suffix for group name
+                  const baseName = primary.name.includes(' — ') ? primary.name.split(' — ').slice(0, -1).join(' — ') : primary.name;
+
+                  return [
+                    // Group / single row
+                    <tr key={key} className={`hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors ${someSelected ? 'bg-[#FF4B8C]/5' : ''}`}>
+                      <td className="px-4 py-4">
+                        <input type="checkbox" checked={allSelected} onChange={toggleGroup} className="w-4 h-4 rounded accent-[#FF4B8C] cursor-pointer" />
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          {isGroup && (
+                            <button onClick={() => toggleExpand(key)} className="text-gray-400 hover:text-[#FF4B8C] transition-colors">
+                              {isOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                            </button>
+                          )}
+                          {primary.images[0] && <img src={primary.images[0]} alt={baseName} className="w-10 h-10 rounded-lg object-cover shrink-0" />}
+                          <div className="min-w-0">
+                            <span className="text-sm font-medium dark:text-gray-200 line-clamp-1 max-w-[160px] block">{baseName}</span>
+                            {isGroup && (
+                              <div className="flex gap-1 mt-1">
+                                {variants.map(v => (
+                                  <span key={v.id} title={v.name.split(' — ').pop()} className="w-3 h-3 rounded-full border border-black/20 inline-block shrink-0"
+                                    style={{ backgroundColor: COLOR_HEX[v.qikink_color_id ?? ''] ?? '#888' }} />
+                                ))}
+                                <span className="text-[10px] text-gray-400 ml-1">{variants.length} colors</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{primary.category}</td>
+                      <td className="px-5 py-4">
+                        <span className="text-sm font-semibold text-[#FF4B8C]">₹{primary.price}</span>
+                        {primary.compare_at_price && <span className="text-xs text-gray-400 line-through ml-1">₹{primary.compare_at_price}</span>}
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex flex-wrap gap-1">
+                          {primary.sizes.map(s => <span key={s} className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-gray-600 dark:text-gray-400">{s}</span>)}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <button onClick={() => toggleActive(primary)} className="flex items-center gap-1 text-xs font-medium">
+                          {primary.is_active ? <><ToggleRight className="w-5 h-5 text-green-500" /><span className="text-green-500">Active</span></> : <><ToggleLeft className="w-5 h-5 text-gray-400" /><span className="text-gray-400">Inactive</span></>}
                         </button>
-                        <button onClick={() => remove(p.id)} className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
-                          <Trash2 className="w-4 h-4 text-red-400" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {products.length === 0 && (
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => openEdit(primary)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"><Pencil className="w-4 h-4 text-gray-500" /></button>
+                          <button onClick={() => remove(primary.id)} className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><Trash2 className="w-4 h-4 text-red-400" /></button>
+                        </div>
+                      </td>
+                    </tr>,
+                    // Expanded variant rows
+                    ...(isGroup && isOpen ? variants.map(v => (
+                      <tr key={`${key}-${v.id}`} className={`bg-gray-50/50 dark:bg-gray-800/20 border-l-2 border-[#FF4B8C]/30 ${selected.has(v.id) ? 'bg-[#FF4B8C]/5' : ''}`}>
+                        <td className="px-4 py-3">
+                          <input type="checkbox" checked={selected.has(v.id)} onChange={() => toggleSelect(v.id)} className="w-4 h-4 rounded accent-[#FF4B8C] cursor-pointer" />
+                        </td>
+                        <td className="px-5 py-3 pl-14">
+                          <div className="flex items-center gap-2">
+                            <span className="w-3 h-3 rounded-full border border-black/20 shrink-0" style={{ backgroundColor: COLOR_HEX[v.qikink_color_id ?? ''] ?? '#888' }} />
+                            <span className="text-xs text-gray-500 dark:text-gray-400">{v.name.split(' — ').pop()}</span>
+                          </div>
+                        </td>
+                        <td className="px-5 py-3 text-xs text-gray-400">{v.category}</td>
+                        <td className="px-5 py-3"><span className="text-xs font-semibold text-[#FF4B8C]">₹{v.price}</span></td>
+                        <td className="px-5 py-3">
+                          <div className="flex flex-wrap gap-1">
+                            {v.sizes.map(s => <span key={s} className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-gray-600 dark:text-gray-400">{s}</span>)}
+                          </div>
+                        </td>
+                        <td className="px-5 py-3">
+                          <button onClick={() => toggleActive(v)} className="flex items-center gap-1 text-xs">
+                            {v.is_active ? <><ToggleRight className="w-4 h-4 text-green-500" /><span className="text-green-500">Active</span></> : <><ToggleLeft className="w-4 h-4 text-gray-400" /><span className="text-gray-400">Inactive</span></>}
+                          </button>
+                        </td>
+                        <td className="px-5 py-3">
+                          <div className="flex items-center gap-2">
+                            <button onClick={() => openEdit(v)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"><Pencil className="w-3.5 h-3.5 text-gray-500" /></button>
+                            <button onClick={() => remove(v.id)} className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    )) : []),
+                  ];
+                })}
+                {grouped.length === 0 && (
                   <tr><td colSpan={7} className="px-5 py-12 text-center text-gray-400 text-sm">No products yet.</td></tr>
                 )}
               </tbody>

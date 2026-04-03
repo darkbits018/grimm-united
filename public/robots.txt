@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /checkout
+Disallow: /order-success
+Disallow: /wishlist
+
+Sitemap: https://grimmunited.com/sitemap.xml

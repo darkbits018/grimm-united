@@ -19,6 +19,13 @@ import OrderSuccessPage from './pages/OrderSuccessPage';
 import OrderTrackingPage from './pages/OrderTrackingPage';
 import WishlistPage from './pages/WishlistPage';
 
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsPage from './pages/TermsPage';
+import RefundPolicyPage from './pages/RefundPolicyPage';
+import ShippingPolicyPage from './pages/ShippingPolicyPage';
+import CancellationPolicyPage from './pages/CancellationPolicyPage';
+import FAQPage from './pages/FAQPage';
+
 export default function App() {
   const interestFormRef = useRef(null);
 
@@ -57,6 +64,12 @@ export default function App() {
               <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/refund-policy" element={<RefundPolicyPage />} />
+              <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
+              <Route path="/cancellation-policy" element={<CancellationPolicyPage />} />
+              <Route path="/faq" element={<FAQPage />} />
             </Routes>
           </WishlistProvider>
         </CartProvider>

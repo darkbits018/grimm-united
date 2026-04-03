@@ -48,9 +48,10 @@ const Footer = () => {
                 <div>
                     <h2 className="text-sm font-semibold text-white uppercase tracking-wider mb-3">Support</h2>
                     <ul className="space-y-2 text-sm">
-                        <li><span className="text-gray-500">Free shipping above ₹999</span></li>
-                        <li><span className="text-gray-500">7-day easy returns</span></li>
-                        <li><span className="text-gray-500">5–7 day delivery</span></li>
+                        <li><Link to="/faq" className="hover:text-[#FF4B8C] transition-colors">FAQ</Link></li>
+                        <li><Link to="/orders" className="hover:text-[#FF4B8C] transition-colors">Track Order</Link></li>
+                        <li><Link to="/shipping-policy" className="hover:text-[#FF4B8C] transition-colors">Shipping Policy</Link></li>
+                        <li><Link to="/refund-policy" className="hover:text-[#FF4B8C] transition-colors">Refund Policy</Link></li>
                         <li>
                             <a href="mailto:holygrimmmedia@gmail.com" className="hover:text-[#FF4B8C] transition-colors">
                                 holygrimmmedia@gmail.com
@@ -62,7 +63,14 @@ const Footer = () => {
 
             <div className="border-t border-white/10 mt-10 pt-6 container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-2">
                 <p className="text-xs text-gray-600">&copy; {new Date().getFullYear()} Grimm United. All Rights Reserved. 🌸</p>
-                <p className="text-xs text-gray-600">Anime streetwear, made with love in India.</p>
+                <div className="flex items-center gap-4">
+                    <Link to="/privacy-policy" className="text-xs text-gray-600 hover:text-[#FF4B8C] transition-colors">Privacy Policy</Link>
+                    <Link to="/terms" className="text-xs text-gray-600 hover:text-[#FF4B8C] transition-colors">Terms & Conditions</Link>
+                    <Link to="/refund-policy" className="text-xs text-gray-600 hover:text-[#FF4B8C] transition-colors">Refund Policy</Link>
+                    <Link to="/shipping-policy" className="text-xs text-gray-600 hover:text-[#FF4B8C] transition-colors">Shipping Policy</Link>
+                    <Link to="/cancellation-policy" className="text-xs text-gray-600 hover:text-[#FF4B8C] transition-colors">Cancellation Policy</Link>
+                    <p className="text-xs text-gray-600">Anime streetwear, made with love in India.</p>
+                </div>
             </div>
         </footer>
     );

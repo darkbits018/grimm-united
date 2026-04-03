@@ -71,6 +71,7 @@ export function ProductCard({ product }: Props) {
                 key={v.id}
                 onClick={() => setActiveVariant(v)}
                 title={v.color_name}
+                aria-label={`Select color: ${v.color_name}`}
                 style={{ backgroundColor: COLOR_HEX[v.qikink_color_id] ?? '#888' }}
                 className={`w-5 h-5 rounded-full border-2 transition-all ${
                   activeVariant?.id === v.id

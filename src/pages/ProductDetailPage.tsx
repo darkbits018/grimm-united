@@ -10,6 +10,7 @@ import { SizeGuideModal } from '../components/shop/SizeGuideModal';
 import { ProductCard } from '../components/shop/ProductCard';
 import { ShopNav } from '../components/shop/ShopNav';
 import Footer from '../components/Footer';
+import { usePageMeta } from '../components/hooks/usePageMeta';
 import type { Product, ProductVariant } from '../types/shop';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -73,6 +74,24 @@ export default function ProductDetailPage() {
   };
 
   const sortedSizes = [...activeSizes].sort((a, b) => SIZE_ORDER.indexOf(a) - SIZE_ORDER.indexOf(b));
+
+  // Dynamic meta — updates when product loads
+  usePageMeta({
+    title: product ? `${product.name} — Grimm United` : 'Product — Grimm United',
+    description: product
+      ? `Buy ${product.name} — anime-inspired streetwear. ${product.category} made-to-order. Free shipping across India. ₹${product.price}.`
+      : 'Anime-inspired streetwear from Grimm United.',
+    image: product ? (activeVariant?.images[0] ?? product.images[0]) : undefined,
+    type: 'product',
+    product: product ? {
+      name: product.name,
+      description: product.description,
+      image: activeVariant?.images[0] ?? product.images[0],
+      price: product.price,
+      brand: 'Grimm United',
+      availability: 'InStock',
+    } : undefined,
+  });
 
   if (loading) return (
     <div className="min-h-screen bg-[#f8f9fa] dark:bg-[#121212]">
@@ -142,7 +161,7 @@ export default function ProductDetailPage() {
               <div className="flex gap-2">
                 {activeImages.map((img, i) => (
                   <button key={i} onClick={() => setImgIndex(i)} className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-colors ${imgIndex === i ? 'border-[#FF4B8C]' : 'border-transparent'}`}>
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={img} alt={`${product.name} — view ${i + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
